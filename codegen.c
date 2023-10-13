@@ -10,6 +10,7 @@ static void bodygen(NDBody *body);
 static void stmtgen(NDStmt *stmt);
 static void exprgen(NDExpr *expr);
 static void numgen(NDExprNum *num);
+static void binarygen(NDExprBinary *binary);
 static void identgen(NDExprIdent *ident);
 static void fcgen(NDExprFc *fc);
 
@@ -66,6 +67,9 @@ static void exprgen(NDExpr *expr) {
     case NDExprKind_NUM:
         numgen((NDExprNum *)expr);
         break;
+    case NDExprKind_BINARY:
+        binarygen((NDExprBinary *)expr);
+        break;
     case NDExprKind_IDENT:
         identgen((NDExprIdent *)expr);
         break;
@@ -77,6 +81,11 @@ static void exprgen(NDExpr *expr) {
 
 static void numgen(NDExprNum *num) { fprintf(fp, "%i", num->num); }
 
+static void binarygen(NDExprBinary *binary) {
+    exprgen(binary->lhs);
+    fprintf(fp, " %s ", binary->ope);
+    exprgen(binary->rhs);
+}
 static void identgen(NDExprIdent *ident) { fprintf(fp, "%s", ident->ident); }
 
 static void fcgen(NDExprFc *fc) {

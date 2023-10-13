@@ -1,5 +1,5 @@
 add(a i32, b i32) i32 {
-	return a;
+	return a + b;
 }
 
 main() i32 {
@@ -13,7 +13,8 @@ arg := ident type
 type := "i32"
 body := "{" stmt* "}"
 stmt := "return" expr ";"
-expr := num
+expr := unit (("+"|"-"|"*"|"/"|"%") expr)?
+unit := num
       | ident
       | fc
 fc := ident params
@@ -51,7 +52,13 @@ NDStmt {
 	next *NDStmt
 }
 
-NDExpr {next *NDExpr} := Ident | Num | Fc
+NDExpr {next *NDExpr} := Binary | Ident | Num | Fc
+
+NDExprBinary {
+	lhs *NDExpr
+	rhs *NDExpr
+	ope string
+}
 
 NDExprIdent {
 	ident string
@@ -116,6 +123,10 @@ stmt ;
 --Stmt
 
 return expr
+
+--ExprBinary
+
+lhs op rhs
 
 --ExprNum
 

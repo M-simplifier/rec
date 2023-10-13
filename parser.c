@@ -77,6 +77,7 @@ static NDType *type(TK **rest, TK *token);
 static NDBody *body(TK **rest, TK *token);
 static NDStmt *stmt(TK **rest, TK *token);
 static NDExpr *expr(TK **rest, TK *token);
+static NDExpr *unit(TK **rest, TK *token);
 static NDExprFc *fc(TK **rest, TK *token);
 static NDExpr *params(TK **rest, TK *token);
 static NDExprIdent *ident(TK **rest, TK *token);
@@ -169,10 +170,28 @@ static NDStmt *stmt(TK **rest, TK *token) {
     return node;
 }
 
-// expr := num
+// expr := unit (("+"|"-"|"*"|"/"|"%") expr)?
+static NDExpr *expr(TK **rest, TK *token) {
+    NDExpr *lhs = unit(&token, token);
+    if (check(token, TKKind_PUNCT, "+") | check(token, TKKind_PUNCT, "-") |
+        check(token, TKKind_PUNCT, "*") | check(token, TKKind_PUNCT, "/") |
+        check(token, TKKind_PUNCT, "%")) {
+        NDExprBinary *node = newNDExpr(NDExprKind_BINARY, token);
+        node->ope = ((TKPunct *)token)->punct;
+        token = token->next;
+        node->lhs = lhs;
+        node->rhs = expr(&token, token);
+        *rest = token;
+        return node;
+    }
+    *rest = token;
+    return lhs;
+}
+
+// unit := num
 //       | ident
 //       | fc
-static NDExpr *expr(TK **rest, TK *token) {
+static NDExpr *unit(TK **rest, TK *token) {
     if (token->kind == TKKind_NUM) {
         NDExprNum *node = num(&token, token);
         *rest = token;

@@ -95,6 +95,7 @@ typedef struct NDBody NDBody;
 typedef struct NDStmt NDStmt;
 typedef enum NDExprKind NDExprKind;
 typedef struct NDExpr NDExpr;
+typedef struct NDExprBinary NDExprBinary;
 typedef struct NDExprIdent NDExprIdent;
 typedef struct NDExprNum NDExprNum;
 typedef struct NDExprFc NDExprFc;
@@ -162,6 +163,7 @@ struct NDStmt {
 };
 
 enum NDExprKind {
+    NDExprKind_BINARY,
     NDExprKind_IDENT,
     NDExprKind_NUM,
     NDExprKind_FC,
@@ -173,6 +175,18 @@ struct NDExpr {
 
     NDExprKind exprKind;
     NDExpr *next;
+};
+
+struct NDExprBinary {
+    NDKind kind;
+    TK *token;
+
+    NDExprKind exprKind;
+    NDExpr *next;
+
+    NDExpr *lhs;
+    NDExpr *rhs;
+    char const *ope;
 };
 
 struct NDExprIdent {
